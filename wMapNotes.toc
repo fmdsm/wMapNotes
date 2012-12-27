@@ -1,0 +1,9 @@
+## Interface: 50100
+## Title: [開發中]wMapNotes
+## Notes: 
+## Author: wind
+## Version: 0.5
+## SavedVariables: 
+
+Date.lua
+wMapNotes.lua
