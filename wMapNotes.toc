@@ -2,7 +2,7 @@
 ## Title: [開發中]wMapNotes
 ## Notes: 
 ## Author: wind
-## Version: 0.5
+## Version: 0.6
 ## SavedVariables: 
 
 Date.lua

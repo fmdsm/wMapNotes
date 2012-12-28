@@ -39,9 +39,8 @@ local icon_cache = {
 local icons = {}
 local index = 0
 
-local GetCurrentMapAreaID = GetCurrentMapAreaID
-local GetMapInfo = GetMapInfo
-local GetItemInfo = GetItemInfo
+local GetCurrentMapAreaID,IsQuestFlaggedCompleted = GetCurrentMapAreaID,IsQuestFlaggedCompleted
+local GetMapInfo,GetItemInfo= GetMapInfo,GetItemInfo
 local WorldMapButton = WorldMapButton
 local floor,pairs,type,select = floor,pairs,type,select
 local function GetPinFrame()
@@ -82,7 +81,7 @@ local function GetPinFrame()
 	return icons[index]
 end
 
-local function SetMapPin(mapid,coord,name,t)
+local function SetMapPin(mapid,coord,name,t,isComplete)
 	local x,y = floor(coord/10000)/10000,(coord%10000)/10000
 		local icon = GetPinFrame()
 		icon.mapid = mapid
@@ -95,12 +94,22 @@ local function SetMapPin(mapid,coord,name,t)
 		else
 			icon.texture:SetTexCoord(0,1,0,1)
 		end
+		if isComplete == 1 then
+			icon:SetAlpha(0.5)
+		else
+			icon:SetAlpha(1)
+		end
 		icon:Show()
 end
 
 local function GetItemIcon(id)
 	if not icon_cache[id] then
-		icon_cache[id] = {icon = select(10,GetItemInfo(id))}
+		local itemicon = select(10,GetItemInfo(id))
+		if itemicon then
+			icon_cache[id] = {icon = itemicon}
+		else
+			return icon_cache[26]
+		end
 	end
 	return icon_cache[id]
 end
@@ -113,11 +122,12 @@ Event:SetScript("OnEvent",function(self,event,...)
 	if db[mapid] then
 		for name,info in pairs(db[mapid]) do
 			local texture = (type(info.icon) == "number" and icon_cache[info.icon]) or (type(info.icon) == "table" and info.icon)  or(type(name)=="number" and GetItemIcon(name))or   icon_cache[9]--指定icon id>指定icon table>物品材质>默认9(金币图标)
+			local isCompleted = info.quest and IsQuestFlaggedCompleted(info.quest)
 			if type(info.coord) == "number" then 
-				SetMapPin(mapid,info.coord,name,texture)
+				SetMapPin(mapid,info.coord,name,texture,isCompleted)
 			else
 				for i,coord in pairs(info.coord) do
-					SetMapPin(mapid,coord,name,texture)
+					SetMapPin(mapid,coord,name,texture,isCompleted)
 				end
 			end
 		end
