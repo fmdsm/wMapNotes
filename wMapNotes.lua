@@ -39,10 +39,27 @@ local icon_cache = {
 local icons = {}
 local index = 0
 
+--/run print(IsQuestFlaggedCompleted(31415))
+
 local GetCurrentMapAreaID,IsQuestFlaggedCompleted = GetCurrentMapAreaID,IsQuestFlaggedCompleted
 local GetMapInfo,GetItemInfo= GetMapInfo,GetItemInfo
 local WorldMapButton = WorldMapButton
 local floor,pairs,type,select = floor,pairs,type,select
+
+local cave_cache = {}
+local function GetCaveInfo(name)
+	if not cave_cache[name] then
+		local item = nil
+		for id,info in pairs(db[name]) do
+			if not(info.quest and IsQuestFlaggedCompleted(info.quest) == 1) then
+				item = id
+				break
+			end
+		end
+		cave_cache[name] =  item
+	end
+	return cave_cache[name]
+end
 local function GetPinFrame()
 	index = index + 1
 	if #icons < index then
@@ -57,12 +74,13 @@ local function GetPinFrame()
 		
 		icon:SetScript("OnEnter",function(self)
 			local info = db[self.mapid][self.name]
+			local name = info.redir and GetCaveInfo(info.redir) or self.name
 			GameTooltip:SetOwner(self,"ANCHOR_RIGHT")
-			if type(self.name)=="number" then
-				GameTooltip:SetItemByID(self.name)
+			if type(name)=="number" then
+				GameTooltip:SetItemByID(name)
 				_,self.link = GameTooltip:GetItem()
 			else
-				GameTooltip:AddLine(self.name)
+				GameTooltip:AddLine(name)
 			end
 			GameTooltip:AddLine(info.desc)
 			GameTooltip:Show()
@@ -81,7 +99,7 @@ local function GetPinFrame()
 	return icons[index]
 end
 
-local function SetMapPin(mapid,coord,name,t,isComplete)
+local function SetMapPin(mapid,coord,name,t,isCompleted)
 	local x,y = floor(coord/10000)/10000,(coord%10000)/10000
 		local icon = GetPinFrame()
 		icon.mapid = mapid
@@ -94,7 +112,7 @@ local function SetMapPin(mapid,coord,name,t,isComplete)
 		else
 			icon.texture:SetTexCoord(0,1,0,1)
 		end
-		if isComplete == 1 then
+		if isCompleted then
 			icon:SetAlpha(0.5)
 		else
 			icon:SetAlpha(1)
@@ -119,10 +137,11 @@ Event:RegisterEvent("WORLD_MAP_UPDATE")
 Event:SetScript("OnEvent",function(self,event,...)
 	index = 0
 	local mapid = select(5,GetMapInfo()) or GetCurrentMapAreaID() --优先使用洞穴名称
-	if db[mapid] then
-		for name,info in pairs(db[mapid]) do
+	if db[mapid] then --同级别的
+		for name,info in pairs(db[mapid]) do--info = db[mapid][name]
 			local texture = (type(info.icon) == "number" and icon_cache[info.icon]) or (type(info.icon) == "table" and info.icon)  or(type(name)=="number" and GetItemIcon(name))or   icon_cache[9]--指定icon id>指定icon table>物品材质>默认9(金币图标)
-			local isCompleted = info.quest and IsQuestFlaggedCompleted(info.quest)
+			local isCompleted = (info.quest and IsQuestFlaggedCompleted(info.quest)) or (info.redir and not GetCaveInfo(info.redir))
+			--如果有任务id检查是否完成任务 1完成 nil未完成 如果是洞口则检查洞穴内任务情况 not(nil完成 id未完成)
 			if type(info.coord) == "number" then 
 				SetMapPin(mapid,info.coord,name,texture,isCompleted)
 			else
@@ -132,6 +151,7 @@ Event:SetScript("OnEvent",function(self,event,...)
 			end
 		end
 	end
+	--todo 不同级别的地图
 	for i = index + 1 ,#icons do
 		icons[i]:Hide()
 	end
@@ -140,7 +160,9 @@ end)
 SLASH_MAPNOTES1 = "/wmn"
 SlashCmdList["MAPNOTES"] = function(cmd)
 	local name1,_,_,_,name2 = GetMapInfo()
-	DEFAULT_CHAT_FRAME:AddMessage("当前区域id = "..GetCurrentMapAreaID().." 当前区域名称 = "..(name2 or name1))
+	--DEFAULT_CHAT_FRAME:AddMessage("当前区域id = "..GetCurrentMapAreaID().." 当前区域名称 = "..(name2 or name1))
+	local x,y = GetPlayerMapPosition("player")
+	DEFAULT_CHAT_FRAME:AddMessage(format("玩家当前坐标:x = %.2f y = %.2f ",x*100,y*100))
 	--DEFAULT_CHAT_FRAME:AddMessage("玩家位置坐标:"
 	-- for mapid,t1 in pairs(db) do
 		-- if not savedb[mapid] then savedb[mapid] = {} end
