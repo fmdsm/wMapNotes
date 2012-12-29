@@ -162,7 +162,7 @@ SlashCmdList["MAPNOTES"] = function(cmd)
 	local name1,_,_,_,name2 = GetMapInfo()
 	--DEFAULT_CHAT_FRAME:AddMessage("当前区域id = "..GetCurrentMapAreaID().." 当前区域名称 = "..(name2 or name1))
 	local x,y = GetPlayerMapPosition("player")
-	DEFAULT_CHAT_FRAME:AddMessage(format("玩家当前坐标:x = %.2f y = %.2f ",x*100,y*100))
+	DEFAULT_CHAT_FRAME:AddMessage(format("玩家当前坐标:x = %.4f y = %.4f ",x*100,y*100))
 	--DEFAULT_CHAT_FRAME:AddMessage("玩家位置坐标:"
 	-- for mapid,t1 in pairs(db) do
 		-- if not savedb[mapid] then savedb[mapid] = {} end

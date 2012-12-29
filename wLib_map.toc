@@ -1,0 +1,9 @@
+## Interface: 50100
+## Title: [開發中]wLib_map
+## Notes: 
+## Author: wind
+## Version: 0.1
+## SavedVariables: wLib_mapDB
+
+
+wLib_map.lua
