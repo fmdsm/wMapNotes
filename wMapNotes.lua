@@ -9,9 +9,17 @@ local index = 0
 --/run print(IsQuestFlaggedCompleted(31415))
 
 local GetCurrentMapAreaID,IsQuestFlaggedCompleted,GetAchievementInfo,GetAchievementCriteriaInfo = GetCurrentMapAreaID,IsQuestFlaggedCompleted,GetAchievementInfo,GetAchievementCriteriaInfo
-local GetMapInfo,GetItemIcon= GetMapInfo,GetItemIcon
+local GetMapInfo,GetItemIcon,GetAchievementLink= GetMapInfo,GetItemIcon,GetAchievementLink
 local WorldMapButton = WorldMapButton
 local floor,pairs,type,select = floor,pairs,type,select
+
+local function ParseAchieveid(id,num)
+	if num == 1 then
+		return floor(id/100)
+	else
+		return floor(id/100),id%100
+	end
+end
 
 local cave_cache = {}
 local function GetCaveInfo(group,name)
@@ -44,12 +52,14 @@ local function GetPinFrame()
 			local info = db[self.group][self.mapid][self.name]
 			local name = info.redir and GetCaveInfo(self.group,info.redir) or self.name
 			GameTooltip:SetOwner(self,"ANCHOR_RIGHT")
-			if self.achieveid then
-				GameTooltip:SetAchievementByID(self.achieveid)
-				self.link = GetAchievementLink(self.achieveid)
-			elseif type(name)=="number" then
-				GameTooltip:SetItemByID(name)
-				_,self.link = GameTooltip:GetItem()
+			if type(name) == "number" then
+				if name>100000 then
+					GameTooltip:AddLine(self._name)
+					self.link = GetAchievementLink(name)
+				else
+					GameTooltip:SetItemByID(name)
+					_,self.link = GameTooltip:GetItem()
+				end
 			else
 				GameTooltip:AddLine(name)
 				self.link = nil
@@ -71,14 +81,13 @@ local function GetPinFrame()
 	return icons[index]
 end
 
-local Scale = ns.mapscale
-local function SetMapPin(group,mapid,coord,name,t,isCompleted,flag,achieveid)
+--local Scale = ns.mapscale
+local function SetMapPin(group,mapid,coord,name,texture,isCompleted,flag)
 	local x,y = floor(coord/10000)/10000,(coord%10000)/10000 --0<x,y<1
 		local icon = GetPinFrame()
 		icon.mapid = mapid
 		icon.name = name
 		icon.group = group
-		icon.achieveid = achieveid
 		icon:ClearAllPoints()
 		if flag then --上一级显示
 			local scale = ns.mapscale[mapid] --判断空值
@@ -87,12 +96,7 @@ local function SetMapPin(group,mapid,coord,name,t,isCompleted,flag,achieveid)
 		else
 			icon:SetPoint("CENTER",WorldMapButton,"TOPLEFT",x*WorldMapButton:GetWidth(),-y*WorldMapButton:GetHeight())
 		end
-		icon.texture:SetTexture(t.icon)
-		if t.tCoordLeft then
-			icon.texture:SetTexCoord(t.tCoordLeft,t.tCoordRight,t.tCoordTop,t.tCoordBottom)
-		else
-			icon.texture:SetTexCoord(0,1,0,1)
-		end
+		icon.texture:SetTexture(texture)
 		if isCompleted then
 			icon:SetAlpha(0.5)
 		else
@@ -101,57 +105,95 @@ local function SetMapPin(group,mapid,coord,name,t,isCompleted,flag,achieveid)
 		icon:Show()
 end
 
+local cache_quest = {}
+local function GetQuestCompleted(id,force)
+	if cache_quest[id] or force then
+		cache_quest[id] = IsQuestFlaggedCompleted(id)
+	end
+	return cache_quest[id]
+end
+
+local cache_achieve = {}
+local function GetAchieveCompleted(id,force)
+	if cache_achieve[id] or force then
+		cache_achieve[id] = GetAchievementCriteriaInfo(ParseAchieveid(id))
+	end
+	return cache_achieve[id]
+end
+
+local function GetQuestAndAchieveCompleted(id)
+	if type(id) == "number" then
+		if id>100000 then 
+			return GetAchieveCompleted(id,true)
+		else
+			return GetQuestCompleted(id,true)
+		end
+	end
+end
+
 local function GetIconCache(id)
-	if not icon_cache[id] then
-		icon_cache[id] = {icon = GetItemIcon(id)}
+	if not icon_cache[id] and type(id) == "number" then
+		if id>100000 then
+			icon_cache[id] = select(10,GetAchievementInfo(ParseAchieveid(id,1)))
+		else
+			icon_cache[id] =  GetItemIcon(id)
+		end
 	end
 	return icon_cache[id]
 end
-local function ImportDate(infos,group,mapid,defaulticon,flag,achieve)
+
+local function ImportDate(infos,group,mapid,defaulticon,flag)
 	for name,info in pairs(infos) do
-		local texture,isCompleted,achieveid
-		if achieve then
-			achieveid = floor(name/100)
-			local subid =name%100
-			texture = {icon = select(10,GetAchievementInfo(achieveid))}
-			_ , _,isCompleted = GetAchievementCriteriaInfo(achieveid,subid)
-		else
-			texture = (type(info.icon) == "number" and icon_cache[info.icon]) or (type(info.icon) == "table" and info.icon)  or(type(name)=="number" and GetIconCache(name))or   defaulticon --指定icon id>指定icon table>物品材质>默认9(金币图标)
-			isCompleted = (info.quest and IsQuestFlaggedCompleted(info.quest)) or (info.redir and not GetCaveInfo(group,info.redir))
-		end
-		--如果有任务id检查是否完成任务 1完成 nil未完成 如果是洞口则检查洞穴内任务情况 not(nil完成 id未完成)
+		local texture = GetIconCache(info.icon or name) or defaulticon
+		local isCompleted = GetQuestAndAchieveCompleted(info.quest or name) or (info.redir and not GetCaveInfo(group,info.redir))
 		if type(info.coord) == "number" then 
-			SetMapPin(group,mapid,info.coord,name,texture,isCompleted,flag,achieveid)
+			SetMapPin(group,mapid,info.coord,name,texture,isCompleted,flag)
 		else
 			for i,coord in pairs(info.coord) do
-				SetMapPin(group,mapid,coord,name,texture,isCompleted,flag,achieveid)
+				SetMapPin(group,mapid,coord,name,texture,isCompleted,flag)
 			end
 		end
 	end
 end
+
 local Event = CreateFrame("Frame")
 Event:RegisterEvent("WORLD_MAP_UPDATE")
+Event:RegisterEvent("PLAYER_LOGIN")
 Event:SetScript("OnEvent",function(self,event,...)
-	index = 0
-	--依次显示不同组
-	local mapid = select(5,GetMapInfo()) or GetCurrentMapAreaID() --优先使用洞穴名称
-	for i,group in pairs(ns.db) do
-		defaulticon = group.icon and icon_cache[group.icon] or icon_cache[8]
-		--先导入对应的组
-		if group[mapid] then
-			ImportDate(group[mapid],i,mapid,defaulticon,false,group.achieve)
-		end
-		--导入上级的组
-		if mapid == 862 and group.level == 2 then
-			for _mapid,t  in pairs(group) do
-				if type(t) == "table" then
-					ImportDate(t,i,_mapid,defaulticon,true,group.achieve)
+	if  event =="WORLD_MAP_UPDATE" then
+		index = 0
+		--依次显示不同组
+		local mapid = select(5,GetMapInfo()) or GetCurrentMapAreaID() --优先使用洞穴名称
+		for i,group in pairs(ns.db) do
+			defaulticon = GetIconCache(group.icon or 1)
+			--先导入对应的组
+			if group[mapid] then
+				ImportDate(group[mapid],i,mapid,defaulticon,false)
+			end
+			--导入上级的组
+			if mapid == 862 and group.level == 2 then
+				for _mapid,t  in pairs(group) do
+					if type(t) == "table" then
+						ImportDate(t,i,_mapid,defaulticon,true)
+					end
 				end
 			end
 		end
-	end
-	for i = index + 1 ,#icons do
-		icons[i]:Hide()
+		for i = index + 1 ,#icons do
+			icons[i]:Hide()
+		end
+	elseif event == "PLAYER_LOGIN" then
+		for _,group in pairs(ns.db) do
+			if group.achieve then
+				for _,ids in pairs(group) do
+					if type(ids)== "table" then
+						for id,info in pairs(ids) do
+							info._name = GetAchievementCriteriaInfo(ParseAchieveid(id))
+						end
+					end
+				end
+			end
+		end
 	end
 end)
 --local savedb = {}

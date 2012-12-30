@@ -3,25 +3,22 @@ ns.db = {}
 
 if true then
 	tinsert(ns.db, { --RichOfPandaria =潘达利亚的宝藏(金币)
-	icon = 9,
 	[862] = { --潘达利亚
 		["船载储物箱"] = {
 			coord = 70137450,
 			quest = 31396,
 			desc = "沉船船底",
-			icon = 9,
 		},
 	},
 	[807] = { --四风
 		["[ 兔妖宝箱 ]"] = {
 			["desc"] = "(23.72,28.32)入口隐藏在灌木丛中。",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =23253067, -- [1]
 			quest=31405,
 		},
 		["一箱被偷的货物"] = {
 			["desc"] = "在汇风岭的兔子洞里，宝箱，随机附魔项链",
-			["icon"] = 9,
 			["coord"] =43953808, -- [1]
 			quest=31406,
 		},
@@ -29,37 +26,36 @@ if true then
 	[809] = { --崑莱
 		["失窃的林精宝箱"] = {
 			["desc"] = "凛风洞深处(坐标：31.9 50.4)  ",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =59405300, --洞口
 			redir = "HowlingwindCavern",
 		},
 		["遗失的冒险者的遗产"] = {
 			["desc"] = "废弃营地  ",
-			["icon"] = 9,
 			["coord"] =36707980, -- [1]
 			quest=31418,
 		},
 		["墨墨的宝箱"] = {
 			["desc"] = "房间里",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =48107300, -- [1]
 			quest=31868,
 		},
 		["精灵的衣箱山洞"] = {--"林精的衣箱"
 			["desc"] = "凛风洞深处，随机附魔披风，56.3 71.5",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =73107350, -- [1]
 			redir = "PrankstersHollow"
 		},
 		["猢狲宝箱"] = {
 			["desc"] = "肘锤洞任务怪[邪恶的]裘裘背后 100金 ",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =50306180, -- [1]
 			redir = "KnucklethumpHole",
 		},
 		[86471] = {
 			["desc"] = "走道非洞穴 右侧雕像背后 ",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =64264516, -- [1]
 			quest=31420,
 		},
@@ -90,13 +86,13 @@ if true then
 		},
 		["秘藏的宝藏"] = {--???
 			["desc"] = "临风岛山洞(坐标：64 ,25)",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =64042510, -- [1]
 			quest=31866,
 		},
 		["船载储物箱"] = {--??
 			["desc"] = "翡翠林地图边缘 (坐标：51.4 100.0)  沉没在南部海岸的联盟船只造成的",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =51429998, -- [1]
 			quest=31396,
 		},
@@ -109,7 +105,7 @@ if true then
 	[873] = { --客栈
 		["被遗忘的密码箱"] = {
 			["desc"] = "客栈二楼 10金 ",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =55377114, -- [1]
 			 quest=31867,
 		},
@@ -137,7 +133,7 @@ if true then
 		},
 		[86516] = { --山洞
 			["desc"] = "砮皂寺西边的山洞 (坐标：48.4 89.2)",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =32766160, -- [1]
 			redir = "NiuzaoCatacombs"
 		},
@@ -150,7 +146,7 @@ if true then
 		},
 		[86220] = {
 			["desc"] = "朱家堡西边山洞(坐标：75.0 55.1) *由玩家提供的位置 100金 ",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =71180862, -- [1]
 			quest=31408,
 		},
@@ -221,12 +217,12 @@ if true then
 	[809] = { --崑莱
 		[86125] = {
 			["desc"] = "洞穴最深处,与冰块中的npc64227冰封小径运货人对话获得。",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =37507800, -- [1]
 			quest=31304
 		},
 		[86430] = {
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =52605150, -- [1]
 			 quest=31419,
 		},
@@ -242,7 +238,7 @@ if true then
 		},
 		[86394] = { --山洞
 			["desc"] = "深石窟,在洞里第二层,在底层水池中的大石头上.特殊模型.",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =52837130, -- [1]
 			redir = "TheDeeper"
 		},
@@ -255,7 +251,7 @@ if true then
 		},
 		[85777] = {
 			["desc"] = "矿洞入口和内部都可能刷新。",
-			["icon"] = 28,
+			["icon"] = 17,
 			["coord"] =46262952, -- [1]
 			redir = "GreenstoneQuarry"
 		},
@@ -728,7 +724,7 @@ if true then
 	end
 	tinsert(ns.db, {--PetTamers =宠物对战
 	level = 2,
-	icon = 29,
+	icon = 662000,
 	[807] = { --四风
 		[npc[2]] = {
 			coord = 46004360,
@@ -746,6 +742,7 @@ if true then
 			coord = 64809360,
 			desc = "",
 			quest = 32441,
+			icon = 793600,
 		},
 	},
 	[811] = { --恒春谷
@@ -765,6 +762,7 @@ if true then
 			coord = 61208760,
 			desc = "",
 			quest = 32439,
+			icon = 793600,
 		},
 	},
 	[806] = {--翠玉
@@ -777,6 +775,7 @@ if true then
 			coord = 28803600,
 			desc = "",
 			quest = 32440,
+			icon = 793600,
 		},
 	},
 	[857] = {--蛮荒
@@ -796,6 +795,7 @@ if true then
 			coord = 57004220,
 			desc = "",
 			quest = 32434,
+			icon = 793600,
 		},
 	},
 })
@@ -856,22 +856,22 @@ ns.mapscale = {
 }
 
 ns.Icons = {
-	[1] = { icon = "Interface\\Minimap\\Tracking\\Auctioneer"},
-	[2] = { icon = "Interface\\Minimap\\Tracking\\Banker"},
-	[3] = { icon = "Interface\\Minimap\\Tracking\\BattleMaster"},
-	[4] = { icon = "Interface\\Minimap\\Tracking\\FlightMaster"},
-	[5] = { icon = "Interface\\Minimap\\Tracking\\Innkeeper"},
-	[6] = { icon = "Interface\\Minimap\\Tracking\\Mailbox"},
-	[7] = { icon = "Interface\\Minimap\\Tracking\\Repair"},
-	[8] = { icon = "Interface\\Minimap\\Tracking\\StableMaster"},
-	[9] = { icon = "Interface\\Minimap\\Tracking\\Class"},
-	[10] = { icon = "Interface\\Minimap\\Tracking\\Profession"},
-	[11] = { icon = "Interface\\Minimap\\Tracking\\TrivialQuests"},
-	[12] = { icon = "Interface\\Minimap\\Tracking\\Ammunition"},
-	[13] = { icon = "Interface\\Minimap\\Tracking\\Food"},
-	[14] = { icon = "Interface\\Minimap\\Tracking\\Poisons"},
-	[15] = { icon = "Interface\\Minimap\\Tracking\\Reagents"},
-	[16] = { icon = "Interface\\PVPFrame\\PVP-ArenaPoints-Icon"},
-	[17] = { icon = "Interface\\Icons\\Spell_Arcane_PortalDalaran"},
-	[18] = { icon = "Interface\\Icons\\Tracking_WildPet"}
+	[1] =  "Interface\\Minimap\\Tracking\\Auctioneer",
+	[2] =  "Interface\\Minimap\\Tracking\\Banker",
+	[3] =  "Interface\\Minimap\\Tracking\\BattleMaster",
+	[4] =  "Interface\\Minimap\\Tracking\\FlightMaster",
+	[5] =  "Interface\\Minimap\\Tracking\\Innkeeper",
+	[6] =  "Interface\\Minimap\\Tracking\\Mailbox",
+	[7] =  "Interface\\Minimap\\Tracking\\Repair",
+	[8] =  "Interface\\Minimap\\Tracking\\StableMaster",
+	[9] =  "Interface\\Minimap\\Tracking\\Class",
+	[10] =  "Interface\\Minimap\\Tracking\\Profession",
+	[11] =  "Interface\\Minimap\\Tracking\\TrivialQuests",
+	[12] =  "Interface\\Minimap\\Tracking\\Ammunition",
+	[13] =  "Interface\\Minimap\\Tracking\\Food",
+	[14] =  "Interface\\Minimap\\Tracking\\Poisons",
+	[15] =  "Interface\\Minimap\\Tracking\\Reagents",
+	[16] =  "Interface\\PVPFrame\\PVP-ArenaPoints-Icon",
+	[17] =  "Interface\\Icons\\Spell_Arcane_PortalDalaran",
+	[18] =  "Interface\\Icons\\Tracking_WildPet",
 }
