@@ -1,7 +1,8 @@
 local _,ns = ...
 ns.db = {}
 
-tinsert(ns.db,true and  { --RichOfPandaria =潘达利亚的宝藏(金币)
+if true then
+	tinsert(ns.db, { --RichOfPandaria =潘达利亚的宝藏(金币)
 	icon = 9,
 	[862] = { --潘达利亚
 		["船载储物箱"] = {
@@ -188,8 +189,10 @@ tinsert(ns.db,true and  { --RichOfPandaria =潘达利亚的宝藏(金币)
 		},
 	},
 })
+end
 
-tinsert(ns.db,true and  { --LostAndFound =装备
+if true then
+	tinsert(ns.db, { --LostAndFound =装备
 	[807] = { --四风
 		[86218] = {
 			["desc"] = "竹子丛里。非武僧职业可以获得的唯一武僧风格法杖。",
@@ -367,8 +370,10 @@ tinsert(ns.db,true and  { --LostAndFound =装备
 		},
 	},
 })
+end
 
-tinsert(ns.db,true and  { --RareElite =玩具
+if true then
+	tinsert(ns.db, { --RareElite =玩具
 	[807] = { --四风
 		[86565] = {
 			["desc"] = "黑蹄",
@@ -548,8 +553,10 @@ tinsert(ns.db,true and  { --RareElite =玩具
 		},
 	},
 })
+end
 
-tinsert(ns.db,true and { --博学者
+if not select(4,GetAchievementInfo(6548)) then
+	tinsert(ns.db, { --博学者
 	level = 2,
 	achieve = true,
 	[807] = { --四风
@@ -712,12 +719,14 @@ tinsert(ns.db,true and { --博学者
 		},
 	},
 })
-
-local npc = {}
-for i = 1,7 do
-	npc[i] = GetAchievementCriteriaInfo(6606,i)
 end
-tinsert(ns.db,true and  {--PetTamers =宠物对战
+
+if true then
+	local npc = {}
+	for i = 1,7 do
+		npc[i] = GetAchievementCriteriaInfo(6606,i)
+	end
+	tinsert(ns.db, {--PetTamers =宠物对战
 	level = 2,
 	icon = 29,
 	[807] = { --四风
@@ -790,7 +799,7 @@ tinsert(ns.db,true and  {--PetTamers =宠物对战
 		},
 	},
 })
-
+end
 ---------------------
 ----以下不要修改----
 ---------------------
@@ -847,85 +856,22 @@ ns.mapscale = {
 }
 
 ns.Icons = {
-	[1] = UnitPopupButtons.RAID_TARGET_1, -- Star
-	[2] = UnitPopupButtons.RAID_TARGET_2, -- Circle
-	[3] = UnitPopupButtons.RAID_TARGET_3, -- Diamond
-	[4] = UnitPopupButtons.RAID_TARGET_4, -- Triangle
-	[5] = UnitPopupButtons.RAID_TARGET_5, -- Moon
-	[6] = UnitPopupButtons.RAID_TARGET_6, -- Square
-	[7] = UnitPopupButtons.RAID_TARGET_7, -- Cross
-	[8] = UnitPopupButtons.RAID_TARGET_8, -- Skull
-	[9] = { icon = "Interface\\Minimap\\Tracking\\Auctioneer"},
-	[10] = { icon = "Interface\\Minimap\\Tracking\\Banker"},
-	[11] = { icon = "Interface\\Minimap\\Tracking\\BattleMaster"},
-	[12] = { icon = "Interface\\Minimap\\Tracking\\FlightMaster"},
-	[13] = { icon = "Interface\\Minimap\\Tracking\\Innkeeper"},
-	[14] = { icon = "Interface\\Minimap\\Tracking\\Mailbox"},
-	[15] = { icon = "Interface\\Minimap\\Tracking\\Repair"},
-	[16] = { icon = "Interface\\Minimap\\Tracking\\StableMaster"},
-	[17] = { icon = "Interface\\Minimap\\Tracking\\Class"},
-	[18] = { icon = "Interface\\Minimap\\Tracking\\Profession"},
-	[19] = { icon = "Interface\\Minimap\\Tracking\\TrivialQuests"},
-	[20] = { icon = "Interface\\Minimap\\Tracking\\Ammunition"},
-	[21] = { icon = "Interface\\Minimap\\Tracking\\Food"},
-	[22] = { icon = "Interface\\Minimap\\Tracking\\Poisons"},
-	[23] = { icon = "Interface\\Minimap\\Tracking\\Reagents"},
-	[24] = { icon = "Interface\\TargetingFrame\\UI-PVP-Alliance",
-		tCoordLeft = 0.05, tCoordRight = 0.65, tCoordTop = 0, tCoordBottom = 0.6},
-	[25] = { icon = "Interface\\TargetingFrame\\UI-PVP-Horde",
-		tCoordLeft = 0.05, tCoordRight = 0.65, tCoordTop = 0, tCoordBottom = 0.6},
-	[26] = { icon = "Interface\\TargetingFrame\\UI-PVP-FFA",
-		tCoordLeft = 0.05, tCoordRight = 0.65, tCoordTop = 0, tCoordBottom = 0.6},
-	[27] = { icon = "Interface\\PVPFrame\\PVP-ArenaPoints-Icon"},
-	[28] = { icon = "Interface\\Icons\\Spell_Arcane_PortalDalaran"},
-	[29] = { icon = "Interface\\Icons\\Tracking_WildPet"}
+	[1] = { icon = "Interface\\Minimap\\Tracking\\Auctioneer"},
+	[2] = { icon = "Interface\\Minimap\\Tracking\\Banker"},
+	[3] = { icon = "Interface\\Minimap\\Tracking\\BattleMaster"},
+	[4] = { icon = "Interface\\Minimap\\Tracking\\FlightMaster"},
+	[5] = { icon = "Interface\\Minimap\\Tracking\\Innkeeper"},
+	[6] = { icon = "Interface\\Minimap\\Tracking\\Mailbox"},
+	[7] = { icon = "Interface\\Minimap\\Tracking\\Repair"},
+	[8] = { icon = "Interface\\Minimap\\Tracking\\StableMaster"},
+	[9] = { icon = "Interface\\Minimap\\Tracking\\Class"},
+	[10] = { icon = "Interface\\Minimap\\Tracking\\Profession"},
+	[11] = { icon = "Interface\\Minimap\\Tracking\\TrivialQuests"},
+	[12] = { icon = "Interface\\Minimap\\Tracking\\Ammunition"},
+	[13] = { icon = "Interface\\Minimap\\Tracking\\Food"},
+	[14] = { icon = "Interface\\Minimap\\Tracking\\Poisons"},
+	[15] = { icon = "Interface\\Minimap\\Tracking\\Reagents"},
+	[16] = { icon = "Interface\\PVPFrame\\PVP-ArenaPoints-Icon"},
+	[17] = { icon = "Interface\\Icons\\Spell_Arcane_PortalDalaran"},
+	[18] = { icon = "Interface\\Icons\\Tracking_WildPet"}
 }
-
---[[ local mt = {
-	__add = function(a,b)
-		for mapid,t1 in pairs(b) do
-			if not a[mapid] then  --直接复制
-				a[mapid] = t1
-			else --合并
-				for name,t2 in pairs(t1) do
-					a[mapid][name] = t2
-				end
-			end
-		end
-		return a
-	end}
-
-setmetatable(LostAndFound,mt)
-setmetatable(PetTamers,mt)
-
-ns.db = LostAndFound + PetTamers ]]
-
--- ns.db = {
-	-- [mapid] = {
-		-- [itemid] = {
-			-- [coord] = {12345678, 23456789},--如果坐标唯一可以[coord] = 12345678,
-			-- icon = texture,
-			-- redir = mapname,--该坐标是其他地图的补充
-			-- desc = "",--额外信息
-		-- },
-	-- },
--- }
-
-
-
---mapid 可以是地图唯一id也可以是名称 注意:山洞里必需使用名称 区域地图推荐mapid
---itemid 装备id 或者名称 如果是id直接调用物品图标
-
---重新定义数据库
---宝物猎人相关
---精英玩具相关
---宝藏相关
---博学者成就相关
---宠物训练师相关
---每个数据库都有自己默认图标 自己的开光状态 以及其他信息
-
---name = function(id) 用于返回名称
---link = function(id) 用于返回链接
---check = function(id) 用于返回状态检查
-
-
