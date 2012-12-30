@@ -1,56 +1,23 @@
 local _,ns = ...
-local size = 15 --图标大小
+local size = 16 --图标大小
 
-local db = ns.db
-local icon_cache = {
-	[1] = UnitPopupButtons.RAID_TARGET_1, -- Star
-	[2] = UnitPopupButtons.RAID_TARGET_2, -- Circle
-	[3] = UnitPopupButtons.RAID_TARGET_3, -- Diamond
-	[4] = UnitPopupButtons.RAID_TARGET_4, -- Triangle
-	[5] = UnitPopupButtons.RAID_TARGET_5, -- Moon
-	[6] = UnitPopupButtons.RAID_TARGET_6, -- Square
-	[7] = UnitPopupButtons.RAID_TARGET_7, -- Cross
-	[8] = UnitPopupButtons.RAID_TARGET_8, -- Skull
-	[9] = { icon = "Interface\\Minimap\\Tracking\\Auctioneer"},
-	[10] = { icon = "Interface\\Minimap\\Tracking\\Banker"},
-	[11] = { icon = "Interface\\Minimap\\Tracking\\BattleMaster"},
-	[12] = { icon = "Interface\\Minimap\\Tracking\\FlightMaster"},
-	[13] = { icon = "Interface\\Minimap\\Tracking\\Innkeeper"},
-	[14] = { icon = "Interface\\Minimap\\Tracking\\Mailbox"},
-	[15] = { icon = "Interface\\Minimap\\Tracking\\Repair"},
-	[16] = { icon = "Interface\\Minimap\\Tracking\\StableMaster"},
-	[17] = { icon = "Interface\\Minimap\\Tracking\\Class"},
-	[18] = { icon = "Interface\\Minimap\\Tracking\\Profession"},
-	[19] = { icon = "Interface\\Minimap\\Tracking\\TrivialQuests"},
-	[20] = { icon = "Interface\\Minimap\\Tracking\\Ammunition"},
-	[21] = { icon = "Interface\\Minimap\\Tracking\\Food"},
-	[22] = { icon = "Interface\\Minimap\\Tracking\\Poisons"},
-	[23] = { icon = "Interface\\Minimap\\Tracking\\Reagents"},
-	[24] = { icon = "Interface\\TargetingFrame\\UI-PVP-Alliance",
-		tCoordLeft = 0.05, tCoordRight = 0.65, tCoordTop = 0, tCoordBottom = 0.6},
-	[25] = { icon = "Interface\\TargetingFrame\\UI-PVP-Horde",
-		tCoordLeft = 0.05, tCoordRight = 0.65, tCoordTop = 0, tCoordBottom = 0.6},
-	[26] = { icon = "Interface\\TargetingFrame\\UI-PVP-FFA",
-		tCoordLeft = 0.05, tCoordRight = 0.65, tCoordTop = 0, tCoordBottom = 0.6},
-	[27] = { icon = "Interface\\PVPFrame\\PVP-ArenaPoints-Icon"},
-	[28] = { icon = "Interface\\Icons\\Spell_Arcane_PortalDalaran"},
-}
+local db,icon_cache = ns.db,ns.Icons
 
 local icons = {}
 local index = 0
 
 --/run print(IsQuestFlaggedCompleted(31415))
 
-local GetCurrentMapAreaID,IsQuestFlaggedCompleted = GetCurrentMapAreaID,IsQuestFlaggedCompleted
-local GetMapInfo,GetItemInfo= GetMapInfo,GetItemInfo
+local GetCurrentMapAreaID,IsQuestFlaggedCompleted,GetAchievementInfo,GetAchievementCriteriaInfo = GetCurrentMapAreaID,IsQuestFlaggedCompleted,GetAchievementInfo,GetAchievementCriteriaInfo
+local GetMapInfo,GetItemIcon= GetMapInfo,GetItemIcon
 local WorldMapButton = WorldMapButton
 local floor,pairs,type,select = floor,pairs,type,select
 
 local cave_cache = {}
-local function GetCaveInfo(name)
+local function GetCaveInfo(group,name)
 	if not cave_cache[name] then
 		local item = nil
-		for id,info in pairs(db[name]) do
+		for id,info in pairs(db[group][name]) do
 			if not(info.quest and IsQuestFlaggedCompleted(info.quest) == 1) then
 				item = id
 				break
@@ -60,6 +27,7 @@ local function GetCaveInfo(name)
 	end
 	return cave_cache[name]
 end
+
 local function GetPinFrame()
 	index = index + 1
 	if #icons < index then
@@ -73,14 +41,18 @@ local function GetPinFrame()
 		icon.texture:Show()
 		
 		icon:SetScript("OnEnter",function(self)
-			local info = db[self.mapid][self.name]
-			local name = info.redir and GetCaveInfo(info.redir) or self.name
+			local info = db[self.group][self.mapid][self.name]
+			local name = info.redir and GetCaveInfo(self.group,info.redir) or self.name
 			GameTooltip:SetOwner(self,"ANCHOR_RIGHT")
-			if type(name)=="number" then
+			if self.achieveid then
+				GameTooltip:SetAchievementByID(self.achieveid)
+				self.link = GetAchievementLink(self.achieveid)
+			elseif type(name)=="number" then
 				GameTooltip:SetItemByID(name)
 				_,self.link = GameTooltip:GetItem()
 			else
 				GameTooltip:AddLine(name)
+				self.link = nil
 			end
 			GameTooltip:AddLine(info.desc)
 			GameTooltip:Show()
@@ -99,13 +71,22 @@ local function GetPinFrame()
 	return icons[index]
 end
 
-local function SetMapPin(mapid,coord,name,t,isCompleted)
-	local x,y = floor(coord/10000)/10000,(coord%10000)/10000
+local Scale = ns.mapscale
+local function SetMapPin(group,mapid,coord,name,t,isCompleted,flag,achieveid)
+	local x,y = floor(coord/10000)/10000,(coord%10000)/10000 --0<x,y<1
 		local icon = GetPinFrame()
 		icon.mapid = mapid
 		icon.name = name
+		icon.group = group
+		icon.achieveid = achieveid
 		icon:ClearAllPoints()
-		icon:SetPoint("CENTER",WorldMapButton,"TOPLEFT",x*WorldMapButton:GetWidth(),-y*WorldMapButton:GetHeight())
+		if flag then --上一级显示
+			local scale = ns.mapscale[mapid] --判断空值
+			if not scale then index = index - 1 return end
+			icon:SetPoint("CENTER",WorldMapButton,"TOPLEFT",(scale[3]+x*scale[1])*WorldMapButton:GetWidth(),-(scale[4]+y*scale[2])*WorldMapButton:GetHeight())
+		else
+			icon:SetPoint("CENTER",WorldMapButton,"TOPLEFT",x*WorldMapButton:GetWidth(),-y*WorldMapButton:GetHeight())
+		end
 		icon.texture:SetTexture(t.icon)
 		if t.tCoordLeft then
 			icon.texture:SetTexCoord(t.tCoordLeft,t.tCoordRight,t.tCoordTop,t.tCoordBottom)
@@ -120,38 +101,55 @@ local function SetMapPin(mapid,coord,name,t,isCompleted)
 		icon:Show()
 end
 
-local function GetItemIcon(id)
+local function GetIconCache(id)
 	if not icon_cache[id] then
-		local itemicon = select(10,GetItemInfo(id))
-		if itemicon then
-			icon_cache[id] = {icon = itemicon}
-		else
-			return icon_cache[26]
-		end
+		icon_cache[id] = {icon = GetItemIcon(id)}
 	end
 	return icon_cache[id]
 end
-
+local function ImportDate(infos,group,mapid,defaulticon,flag,achieve)
+	for name,info in pairs(infos) do
+		local texture,isCompleted,achieveid
+		if achieve then
+			achieveid = floor(name/100)
+			local subid =name%100
+			texture = {icon = select(10,GetAchievementInfo(achieveid))}
+			_ , _,isCompleted = GetAchievementCriteriaInfo(achieveid,subid)
+		else
+			texture = (type(info.icon) == "number" and icon_cache[info.icon]) or (type(info.icon) == "table" and info.icon)  or(type(name)=="number" and GetIconCache(name))or   defaulticon --指定icon id>指定icon table>物品材质>默认9(金币图标)
+			isCompleted = (info.quest and IsQuestFlaggedCompleted(info.quest)) or (info.redir and not GetCaveInfo(group,info.redir))
+		end
+		--如果有任务id检查是否完成任务 1完成 nil未完成 如果是洞口则检查洞穴内任务情况 not(nil完成 id未完成)
+		if type(info.coord) == "number" then 
+			SetMapPin(group,mapid,info.coord,name,texture,isCompleted,flag,achieveid)
+		else
+			for i,coord in pairs(info.coord) do
+				SetMapPin(group,mapid,coord,name,texture,isCompleted,flag,achieveid)
+			end
+		end
+	end
+end
 local Event = CreateFrame("Frame")
 Event:RegisterEvent("WORLD_MAP_UPDATE")
 Event:SetScript("OnEvent",function(self,event,...)
 	index = 0
+	--依次显示不同组
 	local mapid = select(5,GetMapInfo()) or GetCurrentMapAreaID() --优先使用洞穴名称
-	if db[mapid] then --同级别的
-		for name,info in pairs(db[mapid]) do--info = db[mapid][name]
-			local texture = (type(info.icon) == "number" and icon_cache[info.icon]) or (type(info.icon) == "table" and info.icon)  or(type(name)=="number" and GetItemIcon(name))or   icon_cache[9]--指定icon id>指定icon table>物品材质>默认9(金币图标)
-			local isCompleted = (info.quest and IsQuestFlaggedCompleted(info.quest)) or (info.redir and not GetCaveInfo(info.redir))
-			--如果有任务id检查是否完成任务 1完成 nil未完成 如果是洞口则检查洞穴内任务情况 not(nil完成 id未完成)
-			if type(info.coord) == "number" then 
-				SetMapPin(mapid,info.coord,name,texture,isCompleted)
-			else
-				for i,coord in pairs(info.coord) do
-					SetMapPin(mapid,coord,name,texture,isCompleted)
+	for i,group in pairs(ns.db) do
+		defaulticon = group.icon and icon_cache[group.icon] or icon_cache[8]
+		--先导入对应的组
+		if group[mapid] then
+			ImportDate(group[mapid],i,mapid,defaulticon,false,group.achieve)
+		end
+		--导入上级的组
+		if mapid == 862 and group.level == 2 then
+			for _mapid,t  in pairs(group) do
+				if type(t) == "table" then
+					ImportDate(t,i,_mapid,defaulticon,true,group.achieve)
 				end
 			end
 		end
 	end
-	--todo 不同级别的地图
 	for i = index + 1 ,#icons do
 		icons[i]:Hide()
 	end
@@ -160,7 +158,7 @@ end)
 SLASH_MAPNOTES1 = "/wmn"
 SlashCmdList["MAPNOTES"] = function(cmd)
 	local name1,_,_,_,name2 = GetMapInfo()
-	--DEFAULT_CHAT_FRAME:AddMessage("当前区域id = "..GetCurrentMapAreaID().." 当前区域名称 = "..(name2 or name1))
+	DEFAULT_CHAT_FRAME:AddMessage("当前区域id = "..GetCurrentMapAreaID().." 当前区域名称 = "..(name2 or name1))
 	local x,y = GetPlayerMapPosition("player")
 	DEFAULT_CHAT_FRAME:AddMessage(format("玩家当前坐标:x = %.4f y = %.4f ",x*100,y*100))
 	--DEFAULT_CHAT_FRAME:AddMessage("玩家位置坐标:"
