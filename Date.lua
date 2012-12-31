@@ -1,8 +1,9 @@
 local _,ns = ...
 ns.db = {}
 
-if true then
-	tinsert(ns.db, { --RichOfPandaria =潘达利亚的宝藏(金币)
+local GetAchievementCriteriaInfo = GetAchievementCriteriaInfo
+
+local RichOfPandaria =  { -- =潘达利亚的宝藏(金币)
 	[862] = { --潘达利亚
 		["船载储物箱"] = {
 			coord = 70137450,
@@ -184,11 +185,9 @@ if true then
 			quest=31423, 
 		},
 	},
-})
-end
+}
 
-if true then
-	tinsert(ns.db, { --LostAndFound =装备
+local LostAndFound = { -- =装备
 	[807] = { --四风
 		[86218] = {
 			["desc"] = "竹子丛里。非武僧职业可以获得的唯一武僧风格法杖。",
@@ -365,11 +364,9 @@ if true then
 			quest=31399,
 		},
 	},
-})
-end
+}
 
-if true then
-	tinsert(ns.db, { --RareElite =玩具
+local RareElite = { -- 玩具
 	[807] = { --四风
 		[86565] = {
 			["desc"] = "黑蹄",
@@ -548,11 +545,9 @@ if true then
 			["coord"] =64745765, -- [1]
 		},
 	},
-})
-end
+}
 
-if not select(4,GetAchievementInfo(6548)) then
-	tinsert(ns.db, { --博学者
+local Achievement1 = { --博学者
 	level = 2,
 	achieve = true,
 	[807] = { --四风
@@ -714,15 +709,15 @@ if not select(4,GetAchievementInfo(6548)) then
 			coord = 55131620,
 		},
 	},
-})
-end
+}
+--select(4,GetAchievementInfo(6548)) 
 
-if true then
-	local npc = {}
-	for i = 1,7 do
-		npc[i] = GetAchievementCriteriaInfo(6606,i)
-	end
-	tinsert(ns.db, {--PetTamers =宠物对战
+
+local npc = {}
+for i = 1,7 do
+	npc[i] = GetAchievementCriteriaInfo(6606,i)
+end
+local PetTamers = {-- =宠物对战
 	level = 2,
 	icon = 662000,
 	[807] = { --四风
@@ -798,8 +793,29 @@ if true then
 			icon = 793600,
 		},
 	},
-})
-end
+}
+
+local Event = CreateFrame("Frame")
+Event:RegisterEvent("PLAYER_LOGIN")
+Event:SetScript("OnEvent",function(self,event)
+	if true then tinsert(ns.db,RichOfPandaria) end
+	if true then tinsert(ns.db,LostAndFound) end
+	if true then tinsert(ns.db,RareElite) end
+	if not select(4,GetAchievementInfo(6548))  then tinsert(ns.db,Achievement1) end
+	if true then tinsert(ns.db,PetTamers) end
+	for _,group in pairs(ns.db) do
+		if group.achieve then
+			for _,ids in pairs(group) do
+				if type(ids)== "table" then
+					for id,info in pairs(ids) do
+						info._name = GetAchievementCriteriaInfo(ParseAchieveid(id))
+					end
+				end
+			end
+		end
+	end
+end)
+
 ---------------------
 ----以下不要修改----
 ---------------------

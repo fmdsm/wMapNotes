@@ -55,7 +55,7 @@ local function GetPinFrame()
 			if type(name) == "number" then
 				if name>100000 then
 					GameTooltip:AddLine(self._name)
-					self.link = GetAchievementLink(name)
+					self.link = GetAchievementLink(ParseAchieveid(name))
 				else
 					GameTooltip:SetItemByID(name)
 					_,self.link = GameTooltip:GetItem()
@@ -156,44 +156,34 @@ local function ImportDate(infos,group,mapid,defaulticon,flag)
 	end
 end
 
+local oldmapid
 local Event = CreateFrame("Frame")
 Event:RegisterEvent("WORLD_MAP_UPDATE")
-Event:RegisterEvent("PLAYER_LOGIN")
+
 Event:SetScript("OnEvent",function(self,event,...)
-	if  event =="WORLD_MAP_UPDATE" then
-		index = 0
-		--依次显示不同组
-		local mapid = select(5,GetMapInfo()) or GetCurrentMapAreaID() --优先使用洞穴名称
-		for i,group in pairs(ns.db) do
-			defaulticon = GetIconCache(group.icon or 1)
-			--先导入对应的组
-			if group[mapid] then
-				ImportDate(group[mapid],i,mapid,defaulticon,false)
-			end
-			--导入上级的组
-			if mapid == 862 and group.level == 2 then
-				for _mapid,t  in pairs(group) do
-					if type(t) == "table" then
-						ImportDate(t,i,_mapid,defaulticon,true)
-					end
+	if not WorldMapFrame:IsShown() then return end
+	local mapid = select(5,GetMapInfo()) or GetCurrentMapAreaID()
+	if mapid== oldmapid then return end
+	oldmapid =mapid
+	index = 0
+--依次显示不同组
+	for i,group in pairs(ns.db) do
+		defaulticon = GetIconCache(group.icon or 1)
+		--先导入对应的组
+		if group[mapid] then
+			ImportDate(group[mapid],i,mapid,defaulticon,false)
+		end
+		--导入上级的组
+		if mapid == 862 and group.level == 2 then
+			for _mapid,t  in pairs(group) do
+				if type(t) == "table" then
+					ImportDate(t,i,_mapid,defaulticon,true)
 				end
 			end
 		end
-		for i = index + 1 ,#icons do
-			icons[i]:Hide()
-		end
-	elseif event == "PLAYER_LOGIN" then
-		for _,group in pairs(ns.db) do
-			if group.achieve then
-				for _,ids in pairs(group) do
-					if type(ids)== "table" then
-						for id,info in pairs(ids) do
-							info._name = GetAchievementCriteriaInfo(ParseAchieveid(id))
-						end
-					end
-				end
-			end
-		end
+	end
+	for i = index + 1 ,#icons do
+		icons[i]:Hide()
 	end
 end)
 --local savedb = {}
